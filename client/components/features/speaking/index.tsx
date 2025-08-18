@@ -1,0 +1,1 @@
+export { SpeakingTopic } from "./SpeakingTopic";

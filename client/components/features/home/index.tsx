@@ -1,0 +1,6 @@
+export { HeroSection } from './HeroSection'
+export { LearningPathSection } from './LearningPathSection'
+export { PracticeSection } from './PracticeSection'
+export { EntertainmentSection } from './EntertainmentSection'
+export { RoadmapSection } from './RoadmapSection'
+export { Feedback } from './Feedback'
