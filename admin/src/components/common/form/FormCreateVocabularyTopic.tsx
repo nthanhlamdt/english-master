@@ -12,7 +12,6 @@ import Image from "next/image"
 import { Trash2 } from "lucide-react"
 import { createVocabularyTopic } from "@/lib/apis/api"
 import { toast } from "react-toastify"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
 // Schema validation
@@ -25,11 +24,11 @@ type FormData = z.infer<typeof schema>
 
 interface FormCreateVocabularyTopicProps {
   setIsLoading: (isLoading: boolean) => void
+  callback: () => void
 }
 
-export default function FormCreateVocabularyTopic({ setIsLoading }: FormCreateVocabularyTopicProps) {
+export default function FormCreateVocabularyTopic({ setIsLoading, callback }: FormCreateVocabularyTopicProps) {
   const [url, setUrl] = useState("")
-  const router = useRouter()
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -44,13 +43,13 @@ export default function FormCreateVocabularyTopic({ setIsLoading }: FormCreateVo
     await createVocabularyTopic(data)
       .then((res) => {
         toast.success('Đã tạo chủ đề ' + res?.data?.name)
-        router.refresh()
       })
       .catch((err) => toast.error('Lỗi: ' + err.response.data.message))
       .finally(() => {
         form.reset()
         setUrl("")
         setIsLoading(false)
+        callback()
       })
   }
 

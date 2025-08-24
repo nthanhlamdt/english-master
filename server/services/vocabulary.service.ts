@@ -1,7 +1,9 @@
+import { ObjectId } from "mongoose";
 import { UserTopicProgress } from "../models/UserTopicProgress.model";
 import { IVocabularyTopic, VocabularyTopic } from "../models/vocabularyTopic.model";
 import ErrorHandler from "../utils/ErrorHandler";
 import { MediaService } from "./media.service";
+import { IVocabulary, Vocabulary } from "../models/vocabulary.model";
 
 interface ITopicVocabularyUserResponse extends IVocabularyTopic {
   isCompleted: boolean;
@@ -13,15 +15,32 @@ interface ITopicData {
   image: string;
 }
 
+interface IVocabularyData {
+  word: string;
+  transcription: string;
+  partOfSpeech: 'Noun' | 'Verb' | 'Adjective' | 'Adverb' | 'Preposition' | 'Conjunction' | 'Interjection'; //Từ loại
+  definition: string;
+  vietnameseMeaning: string;
+  example: string;
+  image: string;
+  vocabularyTopicId: string;
+  quizId: string;
+}
+
+interface IVocabularyResult {
+  vocabulary: IVocabulary[];
+  vocabularyTopic: IVocabularyTopic
+}
+
 export class VocabularyService {
+  /*====================================== CHỦ ĐỀ TỪ VỰNG ======================================*/
   // (ADMIN) LẤY TẤT CẢ CHỦ ĐỀ TỪ VỰNG
   static async getAllTopics(): Promise<IVocabularyTopic[]> {
     const topics = await VocabularyTopic.find()
       .sort({ orderIndex: 1 })
       .populate({
         path: 'image',
-        select: 'url',
-        transform: (doc) => doc ? doc.url : null
+        select: 'url'
       });
     return topics
   }
@@ -32,8 +51,7 @@ export class VocabularyService {
       .sort({ orderIndex: 1 })
       .populate({
         path: 'image',
-        select: 'url',
-        transform: (doc) => doc ? doc.url : null
+        select: 'url'
       });
 
     const topicsResult = await Promise.all(topics.map(async (topic) => {
@@ -65,5 +83,96 @@ export class VocabularyService {
     await newTopic.save();
 
     return newTopic;
+  }
+
+  //(ADMIN) XÓA CHỦ ĐỀ TỪ VỰNG
+  static async deleteTopicVocabulary(topicId: string): Promise<IVocabularyTopic> {
+    const vocabularyTopic = await VocabularyTopic.findByIdAndDelete(topicId);
+    if (!vocabularyTopic) throw new ErrorHandler('Chủ đề từ vựng không tồn tại', 404);
+
+    await VocabularyTopic.updateMany({ orderIndex: { $gt: vocabularyTopic.orderIndex } }, { $inc: { orderIndex: -1 } });
+
+    return vocabularyTopic;
+  }
+
+  //(ADMIN) SỬA CHỦ ĐỀ TỪ VỰNG
+  static async updateTopicVocabulary(topicId: string, topicData: ITopicData): Promise<IVocabularyTopic> {
+    const { name, image } = topicData;
+    const vocabularyTopic = await VocabularyTopic.findById(topicId);
+    if (!vocabularyTopic) throw new ErrorHandler('Chủ đề từ vựng không tồn tại', 404);
+
+    if (image) {
+      const imageExist = await MediaService.getMediaById(image);
+      if (!imageExist) throw new ErrorHandler('Ảnh không tồn tại', 404);
+    }
+
+    vocabularyTopic.name = name;
+    vocabularyTopic.image = image as unknown as ObjectId;
+    await vocabularyTopic.save();
+
+    return vocabularyTopic;
+  }
+
+  //(ADMIN) CẬP NHẬT TRẠNG THÁI XUẤT BẢN
+  static async updateTopicVocabularyStatus(topicId: string): Promise<IVocabularyTopic> {
+    const vocabularyTopic = await VocabularyTopic.findById(topicId);
+    if (!vocabularyTopic) throw new ErrorHandler('Chủ đề từ vựng không tồn tại', 404);
+
+    const vocabularysByTopic = await Vocabulary.find({ vocabularyTopicId: topicId })
+    if (vocabularysByTopic.length <= 0) throw new ErrorHandler('Chủ đề cần hơn 10 từ vựng mới có thể xuất bản', 400);
+
+    vocabularyTopic.isActive = !vocabularyTopic.isActive;
+    await vocabularyTopic.save();
+
+    return vocabularyTopic;
+  }
+
+
+
+
+
+  /*====================================== TỪ VỰNG ======================================*/
+  //(ADMIN) LẤY TẤT CẢ TỪ VỰNG THEO CHỦ ĐỀ
+  static async getAllVocabularyByTopic(topicId: string): Promise<IVocabularyResult> {
+    const vocabularyTopic = await VocabularyTopic.findById(topicId);
+    if (!vocabularyTopic) throw new ErrorHandler('Chủ đề từ vựng không tồn tại', 404);
+
+    const vocabulary = await Vocabulary.find({ vocabularyTopicId: topicId }).populate({
+      path: 'image',
+      select: 'url'
+    })
+    return {
+      vocabulary,
+      vocabularyTopic
+    }
+  }
+
+  //(ADMIN) TẠO TỪ VỰNG
+  static async createVocabulary(vocabularyData: IVocabularyData): Promise<IVocabulary> {
+    const vocabularyTopicExist = await VocabularyTopic.findById(vocabularyData.vocabularyTopicId);
+    if (!vocabularyTopicExist) throw new ErrorHandler('Chủ đề từ vựng không tồn tại', 404);
+
+    const vocabularyExist = await Vocabulary.findOne({ word: vocabularyData.word });
+    if (vocabularyExist) throw new ErrorHandler('Từ vựng đã tồn tại', 400);
+
+    const imageExist = await MediaService.getMediaById(vocabularyData.image);
+    if (!imageExist) throw new ErrorHandler('Ảnh không tồn tại', 404);
+
+    const vocabulary = await Vocabulary.create(vocabularyData);
+    return vocabulary;
+  }
+
+  //(ADMIN) SỬA TỪ VỰNG
+  static async updateVocabulary(vocabularyId: string, vocabularyData: IVocabularyData): Promise<IVocabulary> {
+    const vocabulary = await Vocabulary.findByIdAndUpdate(vocabularyId, vocabularyData, { new: true });
+    if (!vocabulary) throw new ErrorHandler('Từ vựng không tồn tại', 404);
+    return vocabulary;
+  }
+
+  //(ADMIN) XÓA TỪ VỰNG
+  static async deleteVocabulary(vocabularyId: string): Promise<IVocabulary> {
+    const vocabulary = await Vocabulary.findByIdAndDelete(vocabularyId);
+    if (!vocabulary) throw new ErrorHandler('Từ vựng không tồn tại', 404);
+    return vocabulary;
   }
 }

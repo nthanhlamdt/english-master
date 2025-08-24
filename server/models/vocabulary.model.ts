@@ -4,13 +4,10 @@ export interface IVocabulary extends Document {
   word: string;
   transcription: string;
   partOfSpeech: 'Noun' | 'Verb' | 'Adjective' | 'Adverb' | 'Preposition' | 'Conjunction' | 'Interjection'; //Từ loại
-  Definition: string;
-  vietNameseMeaning: string;
+  definition: string;
+  vietnameseMeaning: string;
   example: string;
-  image: {
-    public_id: string;
-    url: string;
-  };
+  image: mongoose.Types.ObjectId;
   vocabularyTopicId: mongoose.Types.ObjectId;
   quizId: mongoose.Types.ObjectId;
 }
@@ -31,12 +28,12 @@ const vocabularySchema = new Schema<IVocabulary>({
     enum: ['Noun', 'Verb', 'Adjective', 'Adverb', 'Preposition', 'Conjunction', 'Interjection'],
     required: [true, 'Vui lòng chọn từ loại'],
   },
-  Definition: {
+  definition: {
     type: String,
     required: [true, 'Vui lòng nhập định nghĩa'],
     trim: true,
   },
-  vietNameseMeaning: {
+  vietnameseMeaning: {
     type: String,
     required: [true, 'Vui lòng nhập nghĩa tiếng Việt'],
     trim: true,
@@ -47,12 +44,9 @@ const vocabularySchema = new Schema<IVocabulary>({
     trim: true,
   },
   image: {
-    public_id: {
-      type: String,
-    },
-    url: {
-      type: String,
-    },
+    type: Schema.Types.ObjectId,
+    ref: 'Media',
+    required: [true, 'Vui lòng chọn ảnh'],
   },
   vocabularyTopicId: {
     type: Schema.Types.ObjectId,

@@ -1,2 +1,1 @@
-export { columnsVocabularyTopic } from "./VocabularyColumn"
-export { type VocabularyTopic } from "./Vocabulary"
+export { type VocabularyTopic, type Vocabulary, type VocabularyResult } from "./Vocabulary"

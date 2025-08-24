@@ -15,8 +15,7 @@ app.use(cookieParser())
 
 app.use(cors(getCorsConfig()))
 
-app.use('/api/user', mainRouter)
-app.use('/api/admin', mainRouter)
+app.use('/api', mainRouter)
 
 app.get('/test', (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({

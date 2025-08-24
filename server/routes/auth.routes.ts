@@ -1,6 +1,6 @@
 import express from "express";
 import { AuthController } from "../controllers/auth.controller";
-import { authenticateToken, requireRole } from "../middleware/auth.middleware";
+import { authenticateTokenAdmin, authenticateTokenUser, requireRole } from "../middleware/auth.middleware";
 
 const router = express.Router();
 
@@ -13,13 +13,14 @@ router.post('/login', AuthController.login)
 // REFESH TOKEN
 router.post('/refresh-token', AuthController.refeshToken)
 
-// ĐĂNG XUẤT
-router.post('/logout', authenticateToken, AuthController.logout)
+// ĐĂNG XUẤT NGƯỜI DÙNG
+router.post('/logout', authenticateTokenUser, AuthController.logout)
 
-// LẤY THÔNG TIN USER
-router.get('/profile', authenticateToken, AuthController.getProfile)
+// ĐĂNG XUẤT ADMIN
+router.post('/admin/logout', authenticateTokenAdmin, AuthController.logout)
+
 
 // (ADMIN) TẠO USER MỚI
-router.post('/create-user', authenticateToken, requireRole(['admin']), AuthController.createUser)
+router.post('/create-user', authenticateTokenAdmin, requireRole(['admin']), AuthController.createUser)
 
 export const authRoutes = router;

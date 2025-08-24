@@ -14,13 +14,13 @@ interface LoginRequest {
 
 //Login api
 export async function login(credentials: LoginRequest): Promise<ApiResponse<User>> {
-  const response = await authorizedAxios.post<ApiResponse<User>>('/auth/login', credentials)
+  const response = await authorizedAxios.post<ApiResponse<User>>('/auth/login', { ...credentials, role: 'user' })
   return response.data
 }
 
 //Logout api
 export async function logout(): Promise<ApiResponse> {
-  const response = await authorizedAxios.post<ApiResponse>('/auth/logout')
+  const response = await authorizedAxios.post<ApiResponse>('/auth/logout', { role: 'user' })
   return response.data
 }
 

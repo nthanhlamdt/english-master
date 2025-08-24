@@ -50,8 +50,8 @@ export const config = {
 }
 
 function checkSimpleAuthentication(request: NextRequest): boolean {
-  const accessToken = request.cookies.get('access_token')?.value
-  const refreshToken = request.cookies.get('refresh_token')?.value
+  const accessToken = request.cookies.get('access_token_user')?.value
+  const refreshToken = request.cookies.get('refresh_token_user')?.value
 
   // Không có token nào
   if (!accessToken && !refreshToken) {

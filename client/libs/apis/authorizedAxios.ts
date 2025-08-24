@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios'
 import { toast } from 'react-toastify'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/user'
+const API_BASE_URL = 'http://localhost:8000/api'
 
 interface QueueItem {
   resolve: (value?: unknown) => void
@@ -53,7 +53,7 @@ class AuthorizedAxios {
 
           try {
             // Gọi refresh token
-            await this.axiosInstance.post('/auth/refresh-token')
+            await this.axiosInstance.post('/auth/refresh-token', { role: 'user' })
 
             // Thành công, thực hiện lại các request đang chờ
             this.processQueue(null)

@@ -30,6 +30,7 @@ import {
   Zap,
   Bell,
   Globe,
+  CircleQuestionMarkIcon,
 } from "lucide-react";
 
 export interface ISidebarRoute {
@@ -56,10 +57,11 @@ const ROUTES_PATH = {
   // Learning Management
   LEARNING_PATHS: '/admin/learning/paths',
   ACHIEVEMENTS: '/admin/learning/achievements',
+  QUESTIONS: '/admin/learning/questions',
 
   // User Management
-  USER_LIST: '/admin/users/list',
-  ROLES_PERMISSIONS: '/admin/users/roles',
+  USER_LIST: '/admin/user/list',
+  ROLES_PERMISSIONS: '/admin/user/roles',
 
   // Content Library
   GRAMMAR: '/admin/content/grammar',
@@ -71,9 +73,9 @@ const ROUTES_PATH = {
   WRITING: '/admin/content/writing',
 
   // Entertainment
-  MOVIES: '/admin/entertainment/movies',
+  MOVIES: '/admin/entertainment/movie',
   MUSIC: '/admin/entertainment/music',
-  POSTCARDS: '/admin/entertainment/postcards',
+  POSTCARDS: '/admin/entertainment/postcard',
 
   // AI & Technology
   AI_SETTINGS: '/admin/ai/settings',
@@ -116,8 +118,8 @@ const ROUTES_NAME = {
   '/admin/learning/achievements': "Thành tích",
 
   // User Management
-  '/admin/users/list': "Danh sách người dùng",
-  '/admin/users/roles': "Vai trò & Phân quyền",
+  '/admin/user/list': "Danh sách người dùng",
+  '/admin/user/roles': "Vai trò & Phân quyền",
 
   // Content Library
   '/admin/content/grammar': "Ngữ pháp",
@@ -140,9 +142,9 @@ const ROUTES_NAME = {
   '/admin/ai/audio': "Tạo âm thanh",
 
   // Media Management
-  '/admin/media/images': "Hình ảnh",
+  '/admin/media/image': "Hình ảnh",
   '/admin/media/audio': "Âm thanh",
-  '/admin/media/videos': "Video",
+  '/admin/media/video': "Video",
 
   // Communications
   '/admin/communications/email': "Mẫu email",
@@ -205,6 +207,11 @@ const SIDEBAR_ROUTES: ISidebarRouteGroup[] = [
         href: ROUTES_PATH.ACHIEVEMENTS,
         icon: Trophy,
       },
+      {
+        title: "Ngân hàng câu hỏi",
+        href: ROUTES_PATH.QUESTIONS,
+        icon: CircleQuestionMarkIcon,
+      }
     ],
   },
   {

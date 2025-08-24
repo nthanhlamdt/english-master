@@ -16,21 +16,54 @@ declare global {
 }
 
 // MIDDLEWARE XÁC THỰC 
-export const authenticateToken = CatchAsyncError(
+export const authenticateTokenUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    const accessToken = req.cookies.access_token;
+    const accessToken = req.cookies.access_token_user;
 
     //Nếu không có access token, kiểm tra refresh token
     if (!accessToken) {
-      const refeshToken = req.cookies.refresh_token;
+      const refeshToken = req.cookies.refresh_token_user;
       if (!refeshToken) return next(new ErrorHandler('Vui lòng đăng nhập', 410))
 
       // Tạo access token mới từ refresh token
       const { accessToken: newAccessToken } = await AuthService.refreshToken(refeshToken);
 
       //Set access token mới vào cookie
-      CookieUtil.setAccessTokenCookie(res, newAccessToken);
-      req.cookies.access_token = newAccessToken;
+      CookieUtil.setAccessTokenCookie(res, newAccessToken, 'user');
+      req.cookies.access_token_user = newAccessToken;
+
+      //Verify token mới và lấy thông tin user
+      const decoded = JWTUtils.verifyAccessToken(newAccessToken)
+      const userResult = await AuthService.getUserById(decoded.userId)
+
+      req.user = userResult.user
+
+      return next();
+    }
+
+    //Nếu có access token, verify và lấy thông tin user
+    const decoded = JWTUtils.verifyAccessToken(accessToken);
+    const userResult = await AuthService.getUserById(decoded.userId);
+
+    req.user = userResult.user;
+    next();
+  })
+
+export const authenticateTokenAdmin = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const accessToken = req.cookies.access_token_admin;
+
+    //Nếu không có access token, kiểm tra refresh token
+    if (!accessToken) {
+      const refeshToken = req.cookies.refresh_token_admin;
+      if (!refeshToken) return next(new ErrorHandler('Vui lòng đăng nhập', 410))
+
+      // Tạo access token mới từ refresh token
+      const { accessToken: newAccessToken } = await AuthService.refreshToken(refeshToken);
+
+      //Set access token mới vào cookie
+      CookieUtil.setAccessTokenCookie(res, newAccessToken, 'admin');
+      req.cookies.access_token_admin = newAccessToken;
 
       //Verify token mới và lấy thông tin user
       const decoded = JWTUtils.verifyAccessToken(newAccessToken)

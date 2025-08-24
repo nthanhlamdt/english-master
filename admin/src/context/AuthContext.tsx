@@ -31,13 +31,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter();
 
-  // Load user từ storage khi app khởi động
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      setUser(JSON.parse(userData));
     }
     setIsLoading(false);
   }, []);
@@ -46,9 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoading(true)
     await login(credentials)
       .then((res) => {
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('userData', JSON.stringify(res.data))
-        }
+        localStorage.setItem('userData', JSON.stringify(res.data))
         setUser(res.data as User)
         toast.success('Đăng nhập thành công')
         router.push('/admin/dashboard/overview')
@@ -64,9 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logoutUser = async () => {
     await logout()
       .then(() => {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('userData')
-        }
+        localStorage.removeItem('userData')
         setUser(null)
         toast.success('Đăng xuất thành công')
         router.push('/login')

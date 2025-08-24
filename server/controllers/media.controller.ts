@@ -8,8 +8,7 @@ export class MediaController {
   static uploadMedia = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     if (!req.file) return next(new ErrorHandler('Vui lòng tải lên file', 400));
 
-    // const userId = req.user?._id;
-    const userId = '68a024fb9a358d5f36f6a741'
+    const userId = req.user?._id;
 
     if (!userId) return next(new ErrorHandler('Vui lòng đăng nhập người dùng', 404));
 

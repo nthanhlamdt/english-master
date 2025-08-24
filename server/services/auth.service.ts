@@ -14,6 +14,7 @@ interface RegisterData {
 interface LoginData {
   email: string;
   password: string;
+  role: string;
 }
 
 export interface UserInfo {
@@ -76,10 +77,10 @@ export class AuthService {
 
   //ĐĂNG NHẬP NGƯỜI DÙNG
   static async login(loginData: LoginData): Promise<AuthResponse> {
-    const { email, password } = loginData;
+    const { email, password, role } = loginData;
 
     //Tìm user có password
-    const user = await User.findOne({ email: email.toLocaleLowerCase().trim() }).select('+password')
+    const user = await User.findOne({ email: email.toLocaleLowerCase().trim(), role }).select('+password')
 
     if (!user) throw new ErrorHandler('Email không tồn tại', 400);
 
@@ -88,7 +89,7 @@ export class AuthService {
 
     //Lấy avatar media
     const avatar = await Media.findById(user.avatar)
-
+    console.log(avatar)
     //Tạo JWT tokens
     const accessToken = JWTUtils.generateAccessToken((user._id as any).toString());
     const refreshToken = JWTUtils.generateRefreshToken((user._id as any).toString());

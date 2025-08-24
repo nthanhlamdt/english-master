@@ -38,6 +38,7 @@ export class MediaService {
   static async uploadMedia(uploadData: IUploadMedia): Promise<IMedia> {
     const { filePath, userId } = uploadData;
 
+    console.log('user', userId)
     // tải media lên Cloudinary
     const result = await cloudinary.uploader.upload(filePath, {
       folder: 'english-learning',
@@ -89,7 +90,7 @@ export class MediaService {
   }
 
   // XÓA MEDIA
-  static async deleteMedia(mediaId: string, userId: string): Promise<boolean> {
+  static async deleteMedia(mediaId: string, userId: string): Promise<IMedia | null> {
     const media = await Media.findOne({ _id: mediaId, uploadedBy: userId });
     if (!media) {
       throw new Error('Media không tồn tại hoặc bạn không có quyền xóa');
@@ -99,8 +100,8 @@ export class MediaService {
     await cloudinary.uploader.destroy(media.publicId);
 
     // Xóa từ database
-    await Media.findByIdAndDelete(mediaId);
+    const mediaDeleted = await Media.findByIdAndDelete(mediaId);
 
-    return true;
+    return mediaDeleted;
   }
 }

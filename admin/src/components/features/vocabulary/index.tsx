@@ -1,2 +1,2 @@
-export { VocabularyHeader } from './VocabularyHeader'
-export { VocabularyTopicContent } from './VocabularyTopicContent'
+export { VocabularyTopicMain } from './VocabularyTopicMain/VocabularyTopicMain'
+export { VocabularyMain } from './VocabularyMain/VocabularyMain'

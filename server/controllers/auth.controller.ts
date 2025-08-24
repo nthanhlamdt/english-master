@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { CatchAsyncError } from "../middleware/CatchAsyncError";
 import ErrorHandler from "../utils/ErrorHandler";
-import { AuthService } from "../services/auth.service";
+import { AuthService, UserInfo } from "../services/auth.service";
 import { CookieUtil } from "../utils/cookie.util";
 
 export class AuthController {
@@ -26,8 +26,8 @@ export class AuthController {
       const result = await AuthService.register({ fullName, email, password })
 
       //set cookies
-      CookieUtil.setAccessTokenCookie(res, result.accessToken);
-      CookieUtil.setRefreshTokenCookie(res, result.refreshToken);
+      CookieUtil.setAccessTokenCookie(res, result.accessToken, 'user');
+      CookieUtil.setRefreshTokenCookie(res, result.refreshToken, 'user');
 
       //Trả về thông tin người dùng
       return res.status(201).json({
@@ -40,14 +40,17 @@ export class AuthController {
   // ĐĂNG NHẬP NGƯỜI DÙNG
   static login = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { email, password } = req.body;
+      const { email, password, role } = req.body;
 
       if (!email || !password) return next(new ErrorHandler('Vui lòng điển đầy đủ thông tin', 400))
 
-      const result = await AuthService.login({ email, password })
+      if (role != 'user' && role != 'admin') return next(new ErrorHandler('Vui lòng chọn vai trò', 400))
 
-      CookieUtil.setAccessTokenCookie(res, result.accessToken);
-      CookieUtil.setRefreshTokenCookie(res, result.refreshToken);
+
+      const result = await AuthService.login({ email, password, role })
+
+      CookieUtil.setAccessTokenCookie(res, result.accessToken, role);
+      CookieUtil.setRefreshTokenCookie(res, result.refreshToken, role);
 
       return res.status(200).json({
         success: true,
@@ -59,7 +62,7 @@ export class AuthController {
   // ĐĂNG XUẤT NGƯỜI DÙNG
   static logout = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
-      CookieUtil.clearAuthCookies(res)
+      CookieUtil.clearAuthCookies(res, req.user?.role as 'admin' | 'user')
 
       return res.status(200).json({
         success: true,
@@ -85,11 +88,12 @@ export class AuthController {
 
   // REFESH TOKEN
   static refeshToken = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
-    const refreshToken = req.cookies.refresh_token;
+    const { role } = req.body
+    const refreshToken = req.cookies[`refresh_token_${role}`];
     if (!refreshToken) return next(new ErrorHandler('Vui lòng đăng nhập', 401))
 
     const result = await AuthService.refreshToken(refreshToken);
-    CookieUtil.setAccessTokenCookie(res, result.accessToken);
+    CookieUtil.setAccessTokenCookie(res, result.accessToken, role);
 
     return res.status(200).json({
       success: true,

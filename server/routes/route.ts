@@ -1,14 +1,15 @@
-import express from 'express';
-import { authRoutes } from './auth.routes';
-import { vocabularyRoutes } from './vocablulary.routes';
-import { MediaRoutes } from './media.routes';
+import express from 'express'
+import { authRoutes } from './auth.routes'
+import { vocabularyRoutes } from './vocablulary.routes'
+import { MediaRoutes } from './media.routes'
+import { quizRoutes } from './quiz.routes'
 
-
-const router = express.Router();
+const router = express.Router()
 
 router.use('/auth', authRoutes)
 router.use('/vocabulary', vocabularyRoutes)
 router.use('/media', MediaRoutes)
+router.use('/quiz', quizRoutes)
 
 // ✅ ROOT ENDPOINT
 router.get('/', (req, res) => {
@@ -16,8 +17,8 @@ router.get('/', (req, res) => {
     success: true,
     message: 'Chào mừng đến với English Master API! 🎓',
     documentation: req.protocol + '://' + req.get('host') + '/api',
-    health: req.protocol + '://' + req.get('host') + '/health'
-  });
-});
+    health: req.protocol + '://' + req.get('host') + '/health',
+  })
+})
 
-export const mainRouter = router;
+export const mainRouter = router

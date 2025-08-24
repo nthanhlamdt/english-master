@@ -1,15 +1,15 @@
 import express from 'express'
 import { upload } from '../middleware/upload.middleware'
 import { MediaController } from '../controllers/media.controller'
-import { authenticateToken, requireRole } from '../middleware/auth.middleware'
+import { authenticateTokenAdmin, requireRole } from '../middleware/auth.middleware'
 const router = express.Router()
 
 
 // TẢI LÊN 1 MEDIA
 router.post(
   '/upload/single',
-  // authenticateToken,
-  // requireRole(['admin']),
+  authenticateTokenAdmin,
+  requireRole(['admin']),
   upload.single('file'),
   MediaController.uploadMedia
 )
@@ -17,16 +17,7 @@ router.post(
 // TẢI LÊN NHIỀU MEDIA
 router.post(
   '/upload/multiple',
-  authenticateToken,
-  requireRole(['admin']),
-  upload.array('files'),
-  MediaController.uploadMultipleMedia
-)
-
-// LẤY MEDIA BẰNG ID
-router.get(
-  '/:id',
-  authenticateToken,
+  authenticateTokenAdmin,
   requireRole(['admin']),
   MediaController.getMediaById
 )
@@ -34,15 +25,15 @@ router.get(
 // LẤY DANH SÁCH MEDIA
 router.get(
   '/',
-  // authenticateToken,
-  // requireRole(['admin']),
+  authenticateTokenAdmin,
+  requireRole(['admin']),
   MediaController.getMediaList
 )
 
 // XÓA MEDIA
 router.delete(
   '/:id',
-  authenticateToken,
+  authenticateTokenAdmin,
   requireRole(['admin']),
   MediaController.deleteMedia
 )

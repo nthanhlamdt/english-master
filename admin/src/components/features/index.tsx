@@ -1,5 +1,8 @@
-//login
+// Login
 export { Branding, LoginForm } from './login'
 
 // Vocabulary
-export { VocabularyHeader, VocabularyTopicContent } from './vocabulary'
+export { VocabularyTopicMain, VocabularyMain } from './vocabulary'
+
+// Quiz
+export {QuizMain} from './quiz'

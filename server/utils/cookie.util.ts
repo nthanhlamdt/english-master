@@ -2,8 +2,8 @@ import { Response } from "express";
 
 export class CookieUtil {
   // Đặt Access Token vào cookie
-  static setAccessTokenCookie(res: Response, token: string) {
-    res.cookie('access_token', token, {
+  static setAccessTokenCookie(res: Response, token: string, role: 'admin' | 'user') {
+    res.cookie(`access_token_${role}`, token, {
       httpOnly: true, // Không thể truy cập từ client (chống XSS)
       secure: process.env.NODE_ENV === 'production', // Chỉ gửi qua HTTPS ở production
       sameSite: 'lax', // Ngăn chặn CSRF
@@ -13,8 +13,8 @@ export class CookieUtil {
   }
 
   // Đặt refresh token vào cookie
-  static setRefreshTokenCookie(res: Response, token: string) {
-    res.cookie('refresh_token', token, {
+  static setRefreshTokenCookie(res: Response, token: string, role: 'admin' | 'user') {
+    res.cookie(`refresh_token_${role}`, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -24,8 +24,8 @@ export class CookieUtil {
   }
 
   // Xóa tất cả cookies xác thực (khi đăng xuất)
-  static clearAuthCookies(res: Response) {
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token');
+  static clearAuthCookies(res: Response, role: 'admin' | 'user') {
+    res.clearCookie(`access_token_${role}`);
+    res.clearCookie(`refresh_token_${role}`);
   }
 }
